@@ -23,6 +23,15 @@ function get(match) {
   return knex("domains").where(match);
 }
 
+/**
+ * Makes sure a domain from OTHER_AVAILABLE_DOMAINS has its row, so its links get their own
+ * domain_id instead of sharing the default domain's addresses. An existing row is left as it is.
+ */
+async function addAvailable(address) {
+  await knex("domains").insert({ address }).onConflict("address").ignore();
+  return knex("domains").where("address", address).first();
+}
+
 async function add(params) {
   params.address = params.address.toLowerCase();
 
@@ -222,6 +231,7 @@ async function remove(domain) {
 
 module.exports = {
   add,
+  addAvailable,
   find,
   get,
   getAdmin,
