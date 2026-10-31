@@ -22,7 +22,6 @@ function viewTemplate(template) {
 
 function config(req, res, next) {
   res.locals.default_domain = env.DEFAULT_DOMAIN;
-  res.locals.other_available_domains = utils.getOtherAvailableDomains();
   res.locals.site_name = env.SITE_NAME;
   res.locals.contact_email = env.CONTACT_EMAIL;
   res.locals.server_ip_address = env.SERVER_IP_ADDRESS;
@@ -42,6 +41,7 @@ async function user(req, res, next) {
   const user = req.user;
   res.locals.user = user;
   res.locals.domains = user && (await query.domain.get({ user_id: user.id })).map(utils.sanitize.domain);
+  res.locals.other_available_domains = user && (await query.domain.getAvailable()).map(domain => domain.address);
   next();
 }
 

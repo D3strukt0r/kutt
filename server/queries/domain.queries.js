@@ -32,6 +32,17 @@ async function addAvailable(address) {
   return knex("domains").where("address", address).first();
 }
 
+/**
+ * The rows of the domains in OTHER_AVAILABLE_DOMAINS that are not banned, in the order they are listed
+ */
+async function getAvailable() {
+  const addresses = utils.getOtherAvailableDomains();
+  const domains = await knex("domains").whereIn("address", addresses).andWhere("banned", false);
+  return addresses
+    .map(address => domains.find(domain => domain.address === address))
+    .filter(Boolean);
+}
+
 async function add(params) {
   params.address = params.address.toLowerCase();
 
@@ -232,6 +243,7 @@ async function remove(domain) {
 module.exports = {
   add,
   addAvailable,
+  getAvailable,
   find,
   get,
   getAdmin,
